@@ -1,0 +1,81 @@
+--- nagios-plugin-check_ftp_fully-0.1/check_ftp_fully~	2015-03-25 11:58:38.476178569 +0200
++++ nagios-plugin-check_ftp_fully-0.1/check_ftp_fully	2015-03-25 12:02:08.343698845 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+ # check_ftp_fully - plugin for nagios to check that an ftp server is working
+ #                   correctly and allows to log in, list, put, get and delete
+@@ -35,33 +35,33 @@
+ FILENAME=".fspftpcheck."$(/bin/date +%s)
+ FILEPATH=${FILEDIR}${FILENAME}
+ 
+-function setup {
++setup() {
+     echo $(/bin/date) > ${FILEPATH}
+ }
+ 
+-function teardown {
++teardown() {
+     /bin/rm -f ${FILEPATH}
+ }
+ 
+-function f_ok {
++f_ok() {
+     teardown
+     echo "OK: "${1}
+     exit 0
+ }
+ 
+-function f_war {
++f_war() {
+     teardown
+     echo "WARNING: "${1}
+     exit 1
+ }
+ 
+-function f_cri {
++f_cri() {
+     teardown
+     echo "CRITICAL: "${1}
+     exit 2
+ }
+ 
+-function f_unk {
++f_unk() {
+     teardown
+     echo "UNKNOWN: "${1}
+     exit 3
+@@ -88,28 +88,28 @@
+ setup
+ 
+ # List test
+-${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "LS; QUIT" ${HOSTNAME} &> /dev/null
++${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "LS; QUIT" ${HOSTNAME} >/dev/null 2>&1
+ result=$?
+ if [ ${result} != 0 ]; then
+     f_cri "FTP check failed when trying to list the contents of a directory."
+ fi
+ 
+ # Put test
+-${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "PUT ${FILEPATH}; QUIT" ${HOSTNAME} &> /dev/null
++${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "PUT ${FILEPATH}; QUIT" ${HOSTNAME} >/dev/null 2>&1
+ result=$?
+ if [ ${result} != 0 ]; then
+     f_cri "FTP check failed when trying to put a file into a directory."
+ fi
+ 
+ # Get test
+-${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "GET ${FILENAME}; quit" ${HOSTNAME} &> /dev/null
++${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "GET ${FILENAME}; quit" ${HOSTNAME} >/dev/null 2>&1
+ result=$?
+ if [ ${result} != 0 ]; then
+     f_cri "FTP check failed when trying to get a file from a directory."
+ fi
+ 
+ # Get test
+-${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "RM -f ${FILENAME}; QUIT" ${HOSTNAME} &> /dev/null
++${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "RM -f ${FILENAME}; QUIT" ${HOSTNAME} >/dev/null 2>&1
+ result=$?
+ if [ ${result} != 0 ]; then
+     f_cri "FTP check failed when trying to delete a file from a directory."

@@ -10,6 +10,7 @@ Source0:	http://www.deathwing00.org/nagios/check_ftp_fully
 # Source0-md5:	821dbac0cc911e8250e41d7cca56cc62
 Source1:	%{plugin}.cfg
 Patch0:		args.patch
+Patch1:		bashisms.patch
 URL:		http://exchange.nagios.org/directory/Plugins/Network-Protocols/FTP/check_ftp_fully/details
 Requires:	lftp
 Requires:	nagios-common
@@ -31,6 +32,7 @@ be extended easily.
 %setup -qcT
 cp -p %{SOURCE0} %{plugin}
 %patch0 -p1
+%patch1 -p1
 
 %install
 rm -rf $RPM_BUILD_ROOT

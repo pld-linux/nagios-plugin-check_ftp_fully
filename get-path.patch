@@ -1,0 +1,35 @@
+specify path where to download, otherwise it will download relative to execution path
+and from nagios execution path is "/", thus GET operation will fail
+
+also use more secure mktemp rather predictable filename from date
+--- nagios-plugin-check_ftp_fully-0.1/check_ftp_fully~	2015-09-25 17:22:08.216836469 +0300
++++ nagios-plugin-check_ftp_fully-0.1/check_ftp_fully	2015-09-25 17:25:29.783974165 +0300
+@@ -32,15 +32,16 @@
+ 
+ # Name of the file to use for testing
+ FILEDIR="/tmp/"
+-FILENAME=".fspftpcheck."$(/bin/date +%s)
+-FILEPATH=${FILEDIR}${FILENAME}
++FILEPATH=$(mktemp -p $FILEDIR .fspftpcheck.XXXXX) || exit 1
++TEMPGET=$(mktemp -p $FILEDIR .fspftpcheck.XXXXX) || exit 1
++FILENAME=$(basename $FILEPATH)
+ 
+ setup() {
+     echo $(/bin/date) > ${FILEPATH}
+ }
+ 
+ teardown() {
+-    /bin/rm -f ${FILEPATH}
++    /bin/rm -f ${FILEPATH} ${TEMPGET}
+ }
+ 
+ f_ok() {
+@@ -102,7 +103,7 @@
+ fi
+ 
+ # Get test
+-${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "GET ${FILENAME}; quit" ${HOSTNAME} >/dev/null 2>&1
++${LFTP} -u ${USERNAME},${PASSWORD} -p${PORT} -e "GET ${FILENAME} -o ${TEMPGET}; quit" ${HOSTNAME} >/dev/null 2>&1
+ result=$?
+ if [ ${result} != 0 ]; then
+     f_cri "FTP check failed when trying to get a file from a directory."

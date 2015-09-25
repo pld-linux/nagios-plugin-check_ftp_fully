@@ -3,7 +3,7 @@ Summary:	Nagios plugin to check FTP transfers
 Summary(pl.UTF-8):	Wtyczka Nagiosa sprawdzająca ...
 Name:		nagios-plugin-%{plugin}
 Version:	0.1
-Release:	1
+Release:	2
 License:	GPL v2+
 Group:		Networking
 Source0:	http://www.deathwing00.org/nagios/check_ftp_fully
@@ -11,6 +11,7 @@ Source0:	http://www.deathwing00.org/nagios/check_ftp_fully
 Source1:	%{plugin}.cfg
 Patch0:		args.patch
 Patch1:		bashisms.patch
+Patch2:		get-path.patch
 URL:		http://exchange.nagios.org/directory/Plugins/Network-Protocols/FTP/check_ftp_fully/details
 Requires:	lftp
 Requires:	nagios-common
@@ -33,6 +34,7 @@ be extended easily.
 cp -p %{SOURCE0} %{plugin}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %install
 rm -rf $RPM_BUILD_ROOT

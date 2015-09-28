@@ -1,18 +1,26 @@
 specify path where to download, otherwise it will download relative to execution path
 and from nagios execution path is "/", thus GET operation will fail
 
-also use more secure mktemp rather predictable filename from date
---- nagios-plugin-check_ftp_fully-0.1/check_ftp_fully~	2015-09-25 17:22:08.216836469 +0300
-+++ nagios-plugin-check_ftp_fully-0.1/check_ftp_fully	2015-09-25 17:25:29.783974165 +0300
-@@ -32,15 +32,16 @@
+use more secure mktemp to make the temp dir
+
+--- nagios-plugin-check_ftp_fully-0.1/check_ftp_fully	2015-09-25 17:25:29.783974165 +0300
++++ nagios-plugin-check_ftp_fully-0.1/check_ftp_fully	2015-09-25 18:01:30.332890552 +0300
+@@ -30,17 +30,21 @@
+ # 2 if the ftp transactions do not work correctly
+ # 3 if the number of arguments is incorrect or the executable cannot be found
  
- # Name of the file to use for testing
- FILEDIR="/tmp/"
+-# Name of the file to use for testing
+-FILEDIR="/tmp/"
 -FILENAME=".fspftpcheck."$(/bin/date +%s)
 -FILEPATH=${FILEDIR}${FILENAME}
-+FILEPATH=$(mktemp -p $FILEDIR .fspftpcheck.XXXXX) || exit 1
-+TEMPGET=$(mktemp -p $FILEDIR .fspftpcheck.XXXXX) || exit 1
-+FILENAME=$(basename $FILEPATH)
++# Test is performed inside FILEDIR.
++#
++# Files inside the dir may be predictable, but we use something random so that
++# failure from previous test could not affect current test.
++FILEDIR=$(mktemp -d -p ${TMPDIR:-/tmp} .fspftpcheck.XXXXX) || exit 1
++FILENAME=$(basename $FILEDIR) || exit 1
++FILEPATH=$FILEDIR/$FILENAME
++TEMPGET=$FILEDIR/$FILENAME.tmp
  
  setup() {
      echo $(/bin/date) > ${FILEPATH}
@@ -20,11 +28,11 @@ also use more secure mktemp rather predictable filename from date
  
  teardown() {
 -    /bin/rm -f ${FILEPATH}
-+    /bin/rm -f ${FILEPATH} ${TEMPGET}
++    /bin/rm -r ${FILEDIR}
  }
  
  f_ok() {
-@@ -102,7 +103,7 @@
+@@ -102,7 +106,7 @@
  fi
  
  # Get test
